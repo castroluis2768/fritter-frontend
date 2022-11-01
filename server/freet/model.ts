@@ -1,4 +1,4 @@
-import type {Types} from 'mongoose';
+import type {Types, PopulatedDoc, Document} from 'mongoose';
 import {Schema, model} from 'mongoose';
 import type {User} from '../user/model';
 
@@ -14,6 +14,8 @@ export type Freet = {
   dateCreated: Date;
   content: string;
   dateModified: Date;
+  upvotes: number;
+  downvotes: number;
 };
 
 export type PopulatedFreet = {
@@ -22,6 +24,8 @@ export type PopulatedFreet = {
   dateCreated: Date;
   content: string;
   dateModified: Date;
+  upvotes: number;
+  downvotes: number;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
@@ -48,6 +52,16 @@ const FreetSchema = new Schema<Freet>({
   // The date the freet was modified
   dateModified: {
     type: Date,
+    required: true
+  },
+  // The amount of upvotes on the freet
+  upvotes: {
+    type: Number,
+    required: true
+  },
+  // The amount of downvotes on the freet
+  downvotes: {
+    type: Number,
     required: true
   }
 });

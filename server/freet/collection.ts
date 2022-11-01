@@ -21,11 +21,15 @@ class FreetCollection {
    */
   static async addOne(authorId: Types.ObjectId | string, content: string): Promise<HydratedDocument<Freet>> {
     const date = new Date();
+    const upvotes = new Number(0);
+    const downvotes = new Number(0);
     const freet = new FreetModel({
       authorId,
       dateCreated: date,
       content,
-      dateModified: date
+      dateModified: date,
+      upvotes, 
+      downvotes
     });
     await freet.save(); // Saves freet to MongoDB
     return freet.populate('authorId');
@@ -76,6 +80,63 @@ class FreetCollection {
     await freet.save();
     return freet.populate('authorId');
   }
+
+  /**
+   * Update a freet by incrementing the upvote count
+   *
+   * @param {string} freetId - The id of the freet to be updated
+   * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
+   */
+  static async incrementUpvote(freetId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+    const freet = await FreetModel.findOne({_id: freetId});
+    freet.upvotes += 1;
+    freet.dateModified = new Date();
+    await freet.save();
+    return freet.populate('authorId'); 
+  }
+
+  /**
+   * Update a freet by decrementing the upvote count
+   *
+   * @param {string} freetId - The id of the freet to be updated
+   * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
+   */
+  static async decrementUpvote(freetId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+    const freet = await FreetModel.findOne({_id: freetId});
+    freet.upvotes -= 1;
+    freet.dateModified = new Date();
+    await freet.save();
+    return freet.populate('authorId');
+  }
+
+  /**
+   * Update a freet by incrementing the downvote count
+   *
+   * @param {string} freetId - The id of the freet to be updated
+   * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
+   */
+  static async incrementDownvote(freetId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+    const freet = await FreetModel.findOne({_id: freetId});
+    freet.downvotes += 1;
+    freet.dateModified = new Date();
+    await freet.save();
+    return freet.populate('authorId');
+  }
+
+   /**
+   * Update a freet by incrementing the downvote count
+   *
+   * @param {string} freetId - The id of the freet to be updated
+   * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
+   */
+  static async decrementDownvote(freetId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+    const freet = await FreetModel.findOne({_id: freetId});
+    freet.downvotes -= 1;
+    freet.dateModified = new Date();
+    await freet.save();
+    return freet.populate('authorId');
+  }
+  
 
   /**
    * Delete a freet with given freetId.

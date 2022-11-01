@@ -9,6 +9,8 @@ type FreetResponse = {
   dateCreated: string;
   content: string;
   dateModified: string;
+  upvotes: string;
+  downvotes: string;
 };
 
 /**
@@ -33,13 +35,17 @@ const constructFreetResponse = (freet: HydratedDocument<Freet>): FreetResponse =
     })
   };
   const {username} = freetCopy.authorId;
-  delete freetCopy.authorId;
+  const upvotes = freetCopy.upvotes;
+  const downvotes = freetCopy.downvotes;
+  delete freetCopy.authorId;  // do i need to delete upvotes and downvotes here?
   return {
     ...freetCopy,
     _id: freetCopy._id.toString(),
     author: username,
     dateCreated: formatDate(freet.dateCreated),
-    dateModified: formatDate(freet.dateModified)
+    dateModified: formatDate(freet.dateModified),
+    upvotes: String(upvotes),
+    downvotes: String(downvotes)
   };
 };
 

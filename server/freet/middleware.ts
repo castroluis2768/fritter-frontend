@@ -23,6 +23,10 @@ const isFreetExists = async (req: Request, res: Response, next: NextFunction) =>
  * spaces and not more than 140 characters
  */
 const isValidFreetContent = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.content) {
+    next();
+    return;
+  }
   const {content} = req.body as {content: string};
   if (!content.trim()) {
     res.status(400).json({
@@ -53,6 +57,7 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
     });
     return;
   }
+  else 
 
   next();
 };

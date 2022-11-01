@@ -1,12 +1,16 @@
-import type {HydratedDocument} from 'mongoose';
+import type {HydratedDocument, Types} from 'mongoose';
 import moment from 'moment';
-import type {User} from './model';
+import type {User, PopulatedUser} from './model';
+import type {Group} from '../group/model';
+
 
 // Update this if you add a property to the User type!
 type UserResponse = {
   _id: string;
+  name: string;
   username: string;
-  dateJoined: string;
+  password: string;
+  group: Group[];
 };
 
 /**
@@ -26,16 +30,23 @@ const formatDate = (date: Date): string => moment(date).format('MMMM Do YYYY, h:
  * @returns {UserResponse} - The user object without the password
  */
 const constructUserResponse = (user: HydratedDocument<User>): UserResponse => {
-  const userCopy: User = {
+  const userCopy: PopulatedUser = {
     ...user.toObject({
       versionKey: false // Cosmetics; prevents returning of __v property
     })
   };
-  delete userCopy.password;
+  const name = userCopy.name;
+  const username = userCopy.username;
+  const password = userCopy.password;
+  const groups = userCopy.groups;
+  delete userCopy.name;
   return {
     ...userCopy,
     _id: userCopy._id.toString(),
-    dateJoined: formatDate(user.dateJoined)
+    name: name,
+    username: username, 
+    password: password, 
+    group: groups
   };
 };
 

@@ -52,6 +52,16 @@
       Posted at {{ freet.dateModified }}
       <i v-if="freet.edited">(edited)</i>
     </p>
+    <p class="totals">
+      Number of likes: {{ freet.upvotes }}
+      Number of dislikes: {{ freet.downvotes }}
+    </p>
+    <p class="like">
+      <button @click="likeButton"> 👍 Like freet</button>
+      <button @click="dislikeButton"> 👎 Dislike freet</button>  
+      <button @click="undoLike"> Undo like</button>  
+      <button @click="undoDislike"> Undo dislike</button>  
+    </p>
     <section class="alerts">
       <article
         v-for="(status, alert, index) in alerts"
@@ -82,6 +92,78 @@ export default {
     };
   },
   methods: {
+    likeButton() {
+      /**
+       * Updates number of likes on this freet
+       */
+      const params = {
+        method: 'PATCH',
+        message: 'Successfully liked freet!',
+        body: JSON.stringify({action: "addUpvote"}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.request(params);
+    },
+    dislikeButton() {
+      /**
+       * Updates number of dislikes on this freet
+       */
+      //let disliked: Boolean = false;
+      //if (!disliked) {
+        // this.downvotes += 1; 
+      //} 
+      const params = {
+        method: 'PATCH',
+        message: 'Successfully disliked freet!',
+        body: JSON.stringify({action: "addDownvote"}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.request(params);
+    },
+    undoLike() {
+      /**
+       * Updates number of dislikes on this freet
+       */
+      //let disliked: Boolean = false;
+      //if (!disliked) {
+        // this.downvotes += 1; 
+      //} 
+      const params = {
+        method: 'PATCH',
+        message: 'Successfully disliked freet!',
+        body: JSON.stringify({action: "subtractUpvote"}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.request(params);
+    },
+    undoDislike() {
+      /**
+       * Updates number of dislikes on this freet
+       */
+      //let disliked: Boolean = false;
+      //if (!disliked) {
+        // this.downvotes += 1; 
+      //} 
+      const params = {
+        method: 'PATCH',
+        message: 'Successfully disliked freet!',
+        body: JSON.stringify({action: "subtractDownvote"}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.request(params);
+    },
     startEditing() {
       /**
        * Enables edit mode on this freet.

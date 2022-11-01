@@ -78,9 +78,12 @@ const isAccountExists = async (req: Request, res: Response, next: NextFunction) 
  * Checks if a username in req.body is already in use
  */
 const isUsernameNotAlreadyInUse = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.username) {
+    next();
+    return;}
   if (req.body.username !== undefined) { // If username is not being changed, skip this check
     const user = await UserCollection.findOneByUsername(req.body.username);
-
+  
     // If the current session user wants to change their username to one which matches
     // the current one irrespective of the case, we should allow them to do so
     if (user && (user?._id.toString() !== req.session.userId)) {
