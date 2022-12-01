@@ -5,6 +5,8 @@ import GroupCollection from '../group/collection';
 import * as userValidator from '../user/middleware';
 import * as messageValidator from '../message/middleware';
 import * as util from './util';
+import UserCollection from '../user/collection';
+import { PopulatedMessage } from './model';
 
 const router = express.Router();
 
@@ -27,6 +29,19 @@ router.get(
     const group = await GroupCollection.findOne(req.params.groupID);
     const response = group.allMessages;
     res.status(200).json(response);
+
+    // const filtered: PopulatedMessage[] = [];
+    // const messages = (await UserCollection.findOneByUserId(req.session.userId)).messages;
+    // for (const message of messages) {
+    //   const good = await (GroupCollection.findOne(message));
+    //   filtered.push(good);
+    // }
+
+    // const userId = await UserCollection.findOneByUserId(req.params.userID); 
+    // const response = userId.groups;
+
+    // const response = filtered.map(util.constructMessageResponse);
+    // res.status(200).json(response);
   }
 );
 
@@ -42,14 +57,24 @@ router.get(
  * @throws {413} - If the message content is more than 140 characters long
  */
 router.post(
-  '/',
+  '/:group?',
   [
     userValidator.isUserLoggedIn,
     messageValidator.isValidMessageContent
   ],
   async (req: Request, res: Response) => {
+    // const userId = req.session.userId; // Will not be an empty string since its validated in isUserLoggedIn
+    // const group = await MessageCollection.addOne(req.body.content, userId, [userId], []); // Figure out if you should pass in userId
+    // await UserCollection.addMessage(req.session.userId, group._id);
+
+    // res.status(201).json({
+    //   message: 'Your group was created successfully.',
+    //   group: util.constructMessageResponse(group)
+    // });
+    console.log(req.body);
     const creatorID = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    const messageResult = await MessageCollection.addOne(creatorID, req.body.content, req.body.groupID);
+    const messageResult = await MessageCollection.addOne(creatorID, req.body.content, req.params.group);
+    await GroupCollection.addMessage(req.params.group, messageResult._id);
 
     res.status(201).json({
       message: 'Your message was created successfully.',

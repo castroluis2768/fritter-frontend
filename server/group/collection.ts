@@ -23,11 +23,12 @@ class GroupCollection {
    * @param {Types.ObjectId[]} allMessages - The list of all the messages in the Group
    * @return {Promise<HydratedDocument<Group>>} - The newly created group
    */
-  static async addOne(name: string, allUsers: Types.ObjectId[], allMessages: Types.ObjectId[]): Promise<HydratedDocument<Group>> {
+  static async addOne(name: string, userId: Types.ObjectId | string, allUsers: Types.ObjectId[], allMessages: Types.ObjectId[]): Promise<HydratedDocument<PopulatedGroup>> {
     const date = new Date();
     const group = new GroupModel({
-      name, 
-      date, 
+      name,
+      creatorID: userId, 
+      dateCreated: date, 
       allUsers, 
       allMessages
     });
@@ -42,7 +43,7 @@ class GroupCollection {
    * @return {Promise<HydratedDocument<Group>> | Promise<null> } - The group with the given groupID, if any
    */
   static async findOne(groupID: Types.ObjectId | string): Promise<HydratedDocument<PopulatedGroup>> {
-    return GroupModel.findOne({_id: groupID}).populate('creatorID').populate('allUsers').populate('allMessages');
+    return GroupModel.findOne({_id: groupID}).populate('creatorID').populate('allUsers').populate('allMessages'); // do you need to populate allUsers and allMessages?
   }
 
   /**
@@ -65,16 +66,26 @@ class GroupCollection {
       return GroupModel.find({authorId: author._id}).populate('authorId');
     }
 
+  static async addMessage(groupID: Types.ObjectId | string, message: Types.ObjectId): Promise<HydratedDocument<PopulatedGroup>> {
+    const group = await GroupModel.findOne({_id: groupID});
+    group.allMessages.push(message);
+    await group.save();
+    return group.populate('creatorID');
+  }
+
   /**
    * Add a new member to a group
    *
    * @param {string} groupID - The id of the group to be updated
-   * @param {string} memberId - Member of group to be added/removed
+   * @param {string} idToAdd - Member of group to be added/removed
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated group
    */
-  static async addMember(groupID: Types.ObjectId | string, memberID: Types.ObjectId): Promise<HydratedDocument<Group>> {
+  static async addMember(groupID: Types.ObjectId | string, idToAdd: Types.ObjectId | string): Promise<HydratedDocument<PopulatedGroup>> {
     const group = await GroupModel.findOne({_id: groupID});
-    group.allUsers.push(memberID);
+    if (idToAdd !== undefined) {
+      const member = await UserCollection.findOneByUserId(idToAdd);
+      group.allUsers.push(member._id);
+    }
     await group.save();
     return group.populate('creatorID');
   }
@@ -86,9 +97,13 @@ class GroupCollection {
    * @param {string} content - The new content of the freet
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated group
    */
-  static async removeMember(groupID: Types.ObjectId | string, memberID: Types.ObjectId): Promise<HydratedDocument<Group>> {
+  static async removeMember(groupID: Types.ObjectId | string, idToAdd: Types.ObjectId | string): Promise<HydratedDocument<PopulatedGroup>> {
     const group = await GroupModel.findOne({_id: groupID});
-    group.allUsers.splice(group.allUsers.indexOf(memberID), 1);
+    if (idToAdd !== undefined) {
+      const member = await UserCollection.findOneByUserId(idToAdd);
+      // consider adding if (index !== -1) 
+      group.allUsers.splice(group.allUsers.indexOf(member._id), 1);
+    }
     await group.save();
     return group.populate('creatorID');
   }

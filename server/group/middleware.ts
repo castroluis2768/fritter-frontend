@@ -27,15 +27,15 @@ const isGroupExists = async (req: Request, res: Response, next: NextFunction) =>
  * spaces and not more than 140 characters
  */
  const isValidGroupName = (req: Request, res: Response, next: NextFunction) => {
-    const {name} = req.body as {name: string};
-    if (!name.trim()) {
+    const {content} = req.body as {content: string};
+    if (!content.trim()) {
       res.status(400).json({
         error: 'Group name must be at least one character long.'
       });
       return;
     }
   
-    if (name.length > 140) {
+    if (content.length > 140) {
       res.status(413).json({
         error: 'Group name must be no more than 140 characters.'
       });
@@ -46,7 +46,10 @@ const isGroupExists = async (req: Request, res: Response, next: NextFunction) =>
   };
 
 /**
- * Checks if the current user is the author of the freet whose freetId is in req.params
+ * Checks if the current user is the author of the group whose groupId is in req.params. 
+ * 
+ * 
+ * The creator of the group should be the only one able to change who's in the group
  */
 const isValidGroupModifier = async (req: Request, res: Response, next: NextFunction) => {
     const group = await GroupCollection.findOne(req.params.groupID);
@@ -64,6 +67,9 @@ const isValidGroupModifier = async (req: Request, res: Response, next: NextFunct
 
 /**
  * Checks if this person belongs in the group they're looking for
+ * 
+ * 
+ * This person should only be able to look up a person within a specific group
  */
 const isPersonInGroup = async (req: Request, res: Response, next: NextFunction) => {
     const group = await GroupCollection.findOne(req.params.groupID);

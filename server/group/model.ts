@@ -49,17 +49,17 @@ const GroupSchema = new Schema<Group>({
     required: true
   },
   // A list of all the Users in the Chat 
-  allUsers: [{
-    type: Schema.Types.ObjectId, 
+  allUsers: {
+    type: [Schema.Types.ObjectId], 
     required: true,
     ref: 'User'
-  }], 
+  }, 
   // A list of all the messages in the Chat
-  allMessages: [{ 
-    type: Schema.Types.ObjectId, 
+  allMessages: { 
+    type: [Schema.Types.ObjectId], 
     required: true,
     ref: 'Message'
-  }]
+  }
 });
 
 const GroupModel = model<Group>('Group', GroupSchema);

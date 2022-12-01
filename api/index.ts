@@ -73,9 +73,9 @@ app.use(userValidator.isCurrentSessionUserExists);
 // Add routers from routes folder
 app.use('/api/users', userRouter);
 app.use('/api/freets', freetRouter);
-app.use('/api/group', groupRouter);
-app.use('/api/template', templateRouter);
-app.use('/api/message', messageRouter);
+app.use('/api/groups', groupRouter);
+app.use('/api/templates', templateRouter);
+app.use('/api/messages', messageRouter);
 
 
 // Catch all the other routes and display error message

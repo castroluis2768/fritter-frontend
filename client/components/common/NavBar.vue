@@ -16,16 +16,23 @@
       </router-link>
       <router-link
         v-if="$store.state.username"
+        to="/groups" 
+      >
+        Chats
+      </router-link>
+      <router-link
+        v-if="$store.state.username"
         to="/account"
       >
         Account
       </router-link>
       <router-link
         v-else
-        to="/login"
+        to="/login" 
       >
         Login
       </router-link>
+      
     </div>
     <section class="alerts">
       <article

@@ -1,4 +1,4 @@
-<!-- Form for creating freets (block style) -->
+<!-- Form for creating group (block style) -->
 
 
 
@@ -6,24 +6,27 @@
 import BlockForm from '@/components/common/BlockForm.vue';
 
 export default {
-  name: 'CreateFreetForm',
+  name: 'CreateGroupForm',
   mixins: [BlockForm], // have template update contents
   data() {
     return {
-      url: '/api/freets',
+      url: '/api/groups',
       method: 'POST',
       hasBody: true,
       fields: [
-        {id: 'content', label: 'Content', value: ''}
+        {id: 'content', label: 'Name of conversation', value: ''} // come back to figure out fields for creating a chat
       ],
-      title: 'Create a freet',
-      refreshFreets: true,
+      title: 'Start conversation',
+      refreshGroups: true,
       callback: () => {
-        const message = 'Successfully created a freet!';
+        const message = 'Successfully started a chat!';
         this.$set(this.alerts, message, 'success');
         setTimeout(() => this.$delete(this.alerts, message), 3000);
       }
     };
-  }, 
+  },
+  mounted() {
+    this.$store.commit('resetTemplate');
+  }
 };
 </script>

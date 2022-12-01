@@ -15,7 +15,7 @@
         <textarea
           v-if="field.id === 'content'"
           :name="field.id"
-          :value="field.value"
+          :value="$store.state.selectTemplate.name ? field.value = $store.state.selectTemplate.name: field.value"
           @input="field.value = $event.target.value"
         />
         <input
@@ -61,6 +61,7 @@ export default {
       hasBody: false, // Whether or not form request has a body
       setUsername: false, // Whether or not stored username should be updated after form submission
       refreshFreets: false, // Whether or not stored freets should be updated after form submission
+      refreshGroups: false,
       alerts: {}, // Displays success/error messages encountered during form submission
       callback: null // Function to run after successful form submission
     };
@@ -101,6 +102,10 @@ export default {
 
         if (this.refreshFreets) {
           this.$store.commit('refreshFreets');
+        }
+
+        if (this.refreshGroups) {
+          this.$store.commit('refreshGroups');
         }
 
         if (this.callback) {

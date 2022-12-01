@@ -5,6 +5,7 @@ import * as userValidator from '../user/middleware';
 import * as groupValidator from '../group/middleware';
 import * as util from './util';
 import UserCollection from '../user/collection';
+import { PopulatedGroup, Group } from './model';
 
 const router = express.Router();
 
@@ -26,6 +27,9 @@ const router = express.Router();
  * @throws {404} - If no user has given creatorId
  *
  */
+/**
+ * Get group based on groupId. 
+ */
 router.get(
   '/',
   [
@@ -38,20 +42,37 @@ router.get(
     //   return;
     // }
 
-    const group = await GroupCollection.findOne(req.params.groupID);
-    const userId = await UserCollection.findOneByUserId(req.params.userID); 
-    const response = userId.groups;
+    const filtered: PopulatedGroup[] = [];
+    const groups = (await UserCollection.findOneByUserId(req.session.userId)).groups;
+    for (const group of groups) {
+      const good = await (GroupCollection.findOne(group));
+      filtered.push(good)
+    }
+    // const userId = await UserCollection.findOneByUserId(req.params.userID); 
+    // const response = userId.groups;
+    const response = filtered.map(util.constructGroupResponse);
     res.status(200).json(response);
-    },
+    }
+);
+
+router.get(
+  '/:group?',
   [
-    userValidator.isUserLoggedIn,
-    userValidator.isAuthorExists
+    userValidator.isUserLoggedIn
   ],
-  async (req: Request, res: Response) => {
-    const authorGroups = await GroupCollection.findAllByUsername(req.query.author as string);
-    const response = authorGroups.map(util.constructGroupResponse);
+  async (req: Request, res: Response, next: NextFunction) => {
+    // Check if creatorId query parameter was supplied
+    // if (req.query.creator !== undefined) {
+    //   next();
+    //   return;
+    // }
+
+    const group = await GroupCollection.findOne(req.params.group);
+    // const userId = await UserCollection.findOneByUserId(req.params.userID); 
+    // const response = userId.groups;
+    const response = util.constructGroupResponse(group);
     res.status(200).json(response);
-  }
+    }
 );
 
 /**
@@ -72,12 +93,13 @@ router.post(
     groupValidator.isValidGroupName
   ],
   async (req: Request, res: Response) => {
-    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    const group = await GroupCollection.addOne(req.body.name, [], []);
+    const userId = req.session.userId; // Will not be an empty string since its validated in isUserLoggedIn
+    const group = await GroupCollection.addOne(req.body.content, userId, [userId], []); // Figure out if you should pass in userId
+    await UserCollection.addGroup(req.session.userId, group._id);
 
     res.status(201).json({
       message: 'Your group was created successfully.',
-      freet: util.constructGroupResponse(group)
+      group: util.constructGroupResponse(group)
     });
   }
 );
@@ -112,13 +134,11 @@ router.delete(
  *
  * @name PATCH /api/groups/:id/add
  *
- * @param {string} content - the new content for the freet
- * @return {FreetResponse} - the updated freet
+ * @param {string} idToAdd - the person to add
+ * @return {GroupResponse} - the updated group
  * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet
- * @throws {404} - If the freetId is not valid
- * @throws {400} - If the freet content is empty or a stream of empty spaces
- * @throws {413} - If the freet content is more than 140 characters long
+ *                 of the group
+ * @throws {404} - If the groupId is not valid
  */
 router.patch(
   '/:groupID?/members/add',
@@ -131,7 +151,7 @@ router.patch(
     const group = await GroupCollection.addMember(req.params.groupID, req.body.memberID);
     res.status(200).json({
       message: 'Your group was updated successfully.',
-      freet: util.constructGroupResponse(group)
+      group: util.constructGroupResponse(group)
     });
   }
 );
@@ -141,13 +161,11 @@ router.patch(
  *
  * @name PATCH /api/groups/:id/remove
  *
- * @param {string} content - the new content for the freet
- * @return {FreetResponse} - the updated freet
+ * @param {string} idToRemove - the person to remove
+ * @return {GroupResponse} - the updated group
  * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet
- * @throws {404} - If the freetId is not valid
- * @throws {400} - If the freet content is empty or a stream of empty spaces
- * @throws {413} - If the freet content is more than 140 characters long
+ *                 of the group
+ * @throws {404} - If the groupId is not valid
  */
  router.patch(
     '/:groupID?/members/remove',
@@ -160,7 +178,7 @@ router.patch(
       const group = await GroupCollection.removeMember(req.params.groupID, req.body.memberID);
       res.status(200).json({
         message: 'Your group was updated successfully.',
-        freet: util.constructGroupResponse(group)
+        group: util.constructGroupResponse(group)
       });
     }
   );

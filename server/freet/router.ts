@@ -36,15 +36,18 @@ router.get(
       next();
       return;
     }
-
+    console.log("NO AAUTHOR");
     const allFreets = await FreetCollection.findAll();
+    console.log("got all freets");
     const response = allFreets.map(util.constructFreetResponse);
+    console.log("mapped freets");
     res.status(200).json(response);
   },
   [
     userValidator.isAuthorExists
   ],
   async (req: Request, res: Response) => {
+    console.log("YES AUTOHr");
     const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
     const response = authorFreets.map(util.constructFreetResponse);
     res.status(200).json(response);
@@ -140,18 +143,22 @@ router.patch(
     }
     if (req.body.action == 'addUpvote' && !user.likedFreets.includes(req.params.freetID as unknown as Types.ObjectId)) {
       freet = await FreetCollection.incrementUpvote(req.params.freetId);
+      await UserCollection.incrementUpvote(freet.authorId);
       user = await UserCollection.addLikedFreet(req.session.userId, req.params.freetID);
     }
     if (req.body.action == 'subtractUpvote' && !user.likedFreets.includes(req.params.freetID as unknown as Types.ObjectId)) {
       freet = await FreetCollection.decrementUpvote(req.params.freetId);
+      await UserCollection.decrementUpvote(freet.authorId);
       user = await UserCollection.removeLikedFreet(req.session.userId, req.params.freetID);
     }
     if (req.body.action == 'addDownvote' && !user.likedFreets.includes(req.params.freetID as unknown as Types.ObjectId)) {
       freet = await FreetCollection.incrementDownvote(req.params.freetId);
+      await UserCollection.incrementDownvote(freet.authorId);
       user = await UserCollection.addDislikedFreet(req.session.userId, req.params.freetID);
     }
     if (req.body.action == 'subtractDownvote' && !user.likedFreets.includes(req.params.freetID as unknown as Types.ObjectId)) {
       freet = await FreetCollection.decrementDownvote(req.params.freetId);
+      await UserCollection.decrementDownvote(freet.authorId);
       user = await UserCollection.removeDislikedFreet(req.session.userId, req.params.freetID);
     } 
 

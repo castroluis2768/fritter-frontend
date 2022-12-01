@@ -21,10 +21,10 @@ class MessageCollection {
    *
    * @param {string} creatorID - The id of the author of the message
    * @param {string} content - The id of the content of the message
-   * @param {string[]} group - The list of the users who received the message
+   * @param {Types.ObjectId[]} group - The list of the users who received the message
    * @return {Promise<HydratedDocument<Message>>} - The newly created message
    */
-  static async addOne(creatorID: Types.ObjectId | string, content: string, groupID: Types.ObjectId): Promise<HydratedDocument<PopulatedMessage>> {
+  static async addOne(creatorID: Types.ObjectId | string, content: string, groupID: Types.ObjectId | string): Promise<HydratedDocument<PopulatedMessage>> {
 
     const date = new Date();
     const message = new MessageModel({
@@ -87,10 +87,10 @@ class MessageCollection {
    * @param {string} username - The username of author of the messages
    * @return {Promise<HydratedDocument<Messages>[]>} - An array of all of the messages
    */
-     static async findAllMessagesReceived(username: string): Promise<Array<HydratedDocument<Message>>> {
-        const author = await UserCollection.findOneByUsername(username);
-        return MessageModel.find({recipientIDs: [author]}).sort({dateModified: -1}).populate('creatorID');
-      }
+  static async findAllMessagesReceived(username: string): Promise<Array<HydratedDocument<Message>>> {
+    const author = await UserCollection.findOneByUsername(username);
+    return MessageModel.find({recipientIDs: [author]}).sort({dateModified: -1}).populate('creatorID');
+  }
  
   /**
    * Get all the messages in a group that you belong in
@@ -112,6 +112,7 @@ class MessageCollection {
     const message = await MessageModel.deleteOne({_id: messageID});
     return message !== null;
   }
+
 
   
 }

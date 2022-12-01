@@ -7,7 +7,7 @@
   >
     <header>
       <h3 class="author">
-        @{{ freet.author }}
+        @{{ freet.author }} | Reputation Score: {{ ((freet.upvotes - freet.downvotes)) / (freet.upvotes + freet.downvotes)}}
       </h3>
       <div
         v-if="$store.state.username === freet.author"

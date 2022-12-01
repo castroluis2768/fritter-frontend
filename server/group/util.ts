@@ -1,6 +1,6 @@
-import type {HydratedDocument} from 'mongoose';
+import type {HydratedDocument, Types} from 'mongoose';
 import moment from 'moment';
-import type {Group} from '../group/model';
+import type {Group, PopulatedGroup} from '../group/model';
 import type {User} from '../user/model';
 import type {Message} from '../message/model';
 
@@ -9,9 +9,10 @@ import type {Message} from '../message/model';
 type GroupResponse = {
     _id: string; 
     name: string; 
+    creatorID: User; 
     dateCreated: string; 
-    allUsers: string; 
-    allMessages: string; 
+    allUsers: User[]; 
+    allMessages: Message[]; 
 };
 
 /**
@@ -29,23 +30,23 @@ const formatDate = (date: Date): string => moment(date).format('MMMM Do YYYY, h:
  * @param {HydratedDocument<Group>} group - A group
  * @returns {GroupResponse} - The freet object formatted for the frontend
  */
-const constructGroupResponse = (group: HydratedDocument<Group>): GroupResponse => {
-  const groupCopy: Group = {
+const constructGroupResponse = (group: HydratedDocument<PopulatedGroup>): GroupResponse => {
+  const groupCopy: PopulatedGroup = {
     ...group.toObject({
       versionKey: false // Cosmetics; prevents returning of __v property
     })
   };
-  const name = groupCopy.name;
+  // const {creator} = groupCopy.creatorID;
   const allUsers = groupCopy.allUsers;
   const allMessages = groupCopy.allMessages;
-  delete groupCopy.name;
   return {
     ...groupCopy,
     _id: groupCopy._id.toString(),
-    name: name,
-    dateCreated: formatDate(group.dateCreated),
-    allUsers: String(allUsers),
-    allMessages: String(allMessages)
+    creatorID: groupCopy.creatorID,
+    name: groupCopy.name,
+    dateCreated: formatDate(groupCopy.dateCreated),
+    allUsers: groupCopy.allUsers,
+    allMessages: groupCopy.allMessages
   };
 };
 

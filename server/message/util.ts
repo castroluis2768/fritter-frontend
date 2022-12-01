@@ -1,13 +1,16 @@
-import type {HydratedDocument} from 'mongoose';
+import type {HydratedDocument, Types} from 'mongoose';
 import moment from 'moment';
 import type {Message, PopulatedMessage} from '../message/model';
+import type {User} from '../user/model';
+import type {Group} from'../group/model';
 
 // Update this if you add a property to the Message type!
 type MessageResponse = {
   _id: string;
-  creator: string;
+  creator: User;
   dateSent: string;
   content: string;
+  group: Group;
 };
 
 /**
@@ -32,12 +35,13 @@ const constructMessageResponse = (message: HydratedDocument<PopulatedMessage>): 
     })
   };
   const {username} = messageCopy.creatorID;
-  delete messageCopy.creatorID; 
+  // delete messageCopy.creatorID; 
   return {
     ...messageCopy,
     _id: messageCopy._id.toString(),
-    creator: username,
+    creator: messageCopy.creatorID,
     dateSent: formatDate(message.dateSent),
+    group: messageCopy.group
   };
 };
 

@@ -3,6 +3,8 @@ import VueRouter from 'vue-router';
 import FreetsPage from './components/Freet/FreetsPage.vue';
 import AccountPage from './components/Account/AccountPage.vue';
 import LoginPage from './components/Login/LoginPage.vue';
+import GroupPage from './components/Group/GroupPage.vue';
+import MessagePage from './components/Message/MessagePage.vue';
 import NotFound from './NotFound.vue';
 
 Vue.use(VueRouter);
@@ -11,6 +13,8 @@ const routes = [
   {path: '/', name: 'Home', component: FreetsPage},
   {path: '/account', name: 'Account', component: AccountPage},
   {path: '/login', name: 'Login', component: LoginPage},
+  {path: '/groups', name: 'Chats', component: GroupPage},
+  {path: '/messages/:group', name: 'Messages', component: MessagePage},
   {path: '*', name: 'Not Found', component: NotFound}
 ];
 
@@ -27,6 +31,11 @@ router.beforeEach((to, from, next) => {
     }
 
     if (to.name === 'Account' && !router.app.$store.state.username) {
+      next({name: 'Login'}); // Go to Login page if user navigates to Account and are not signed in
+      return;
+    }
+
+    if (to.name === 'Chats' && !router.app.$store.state.username) {
       next({name: 'Login'}); // Go to Login page if user navigates to Account and are not signed in
       return;
     }

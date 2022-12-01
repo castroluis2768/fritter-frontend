@@ -1,6 +1,7 @@
 import type {Types} from 'mongoose';
 import {Schema, model} from 'mongoose';
 import type {Group} from '../group/model';
+import type {Message} from '../message/model';
 import type {Freet} from '../freet/model';
 
 
@@ -12,11 +13,8 @@ import type {Freet} from '../freet/model';
 // Type definition for User on the backend
 export type User = {
   _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
-  name: string; 
   username: string;
   password: string;
-  followers: number;
-  following: number; 
   totalFreets: number; 
   totalUpvotes: number;
   totalDownvotes: number;
@@ -29,11 +27,8 @@ export type User = {
 
 export type PopulatedUser = {
   _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
-  name: string; 
   username: string;
   password: string;
-  followers: number;
-  following: number; 
   totalFreets: number; 
   totalUpvotes: number;
   totalDownvotes: number;
@@ -48,11 +43,6 @@ export type PopulatedUser = {
 // Users stored in this table will have these fields, with the
 // type given by the type property, inside MongoDB
 const UserSchema = new Schema({
-  // The user's name (mutable) 
-  name: {
-    type: String,
-    required: true
-  },
   // The user's username
   username: {
     type: String,
@@ -63,16 +53,16 @@ const UserSchema = new Schema({
     type: String,
     required: true
   },
-  // Number of followers the user has
-  followers: {
-    type: Number,
-    required: true
-  },
-  // Number of profiles the user is following
-  following: {
-    type: Number,
-    required: true
-  },
+  // // Number of followers the user has
+  // followers: {
+  //   type: Number,
+  //   required: true
+  // },
+  // // Number of profiles the user is following
+  // following: {
+  //   type: Number,
+  //   required: true
+  // },
   // Number of total freets the user has ever made
   totalFreets: {
     type: Number,

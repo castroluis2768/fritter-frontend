@@ -6,6 +6,7 @@
       <header>
         <h2>Welcome @{{ $store.state.username }}</h2>
       </header>
+      <TemplateForm />
       <CreateFreetForm />
     </section>
     <section v-else>
@@ -62,10 +63,11 @@
 import FreetComponent from '@/components/Freet/FreetComponent.vue';
 import CreateFreetForm from '@/components/Freet/CreateFreetForm.vue';
 import GetFreetsForm from '@/components/Freet/GetFreetsForm.vue';
+import TemplateForm from '@/components/Template/TemplateForm.vue';
 
 export default {
   name: 'FreetPage',
-  components: {FreetComponent, GetFreetsForm, CreateFreetForm},
+  components: {FreetComponent, GetFreetsForm, CreateFreetForm, TemplateForm},
   mounted() {
     this.$refs.getFreetsForm.submit();
   }
